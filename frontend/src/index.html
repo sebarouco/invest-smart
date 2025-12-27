@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invest Smart</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* Global Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #000;
+            color: #fff;
+            line-height: 1.6;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid #333;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            color: #00a8ff;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        /* Market Sections */
+        .market-section {
+            margin-bottom: 3rem;
+        }
+
+        .market-section h2 {
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            color: #00a8ff;
+            border-bottom: 2px solid #00a8ff;
+            padding-bottom: 0.5rem;
+            display: inline-block;
+        }
+
+        .market-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .market-card {
+            background: #2f3640;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .chart-container {
+            height: 80px;
+            margin-top: 15px;
+            position: relative;
+        }
+
+        .chart-container canvas {
+            width: 100% !important;
+            height: 100% !important;
+        }
+
+        .market-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .market-card-header {
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .stock-title {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .market-card-header h3 {
+            font-size: 1.5rem;
+            color: #00a8ff;
+            margin: 0;
+        }
+
+        .sector-tag {
+            font-size: 0.7rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 12px;
+            color: white;
+            font-weight: 600;
+            opacity: 0.9;
+        }
+
+        .stock-name {
+            color: #95a5a6;
+            font-size: 0.9rem;
+        }
+
+        .market-card-body {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .price-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+
+        .price {
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin: 0;
+        }
+
+        .stock-details {
+            margin: 0.75rem 0;
+            font-size: 0.85rem;
+            color: #95a5a6;
+            line-height: 1.5;
+        }
+
+        .stock-meta {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.25rem;
+        }
+
+        .stock-meta span:first-child {
+            color: #bdc3c7;
+            font-weight: 500;
+        }
+
+        .change {
+            font-size: 1rem;
+            font-weight: 600;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            display: inline-block;
+            width: fit-content;
+        }
+
+        .positive {
+            color: #2ecc71;
+            background-color: rgba(46, 204, 113, 0.1);
+        }
+
+        .negative {
+            color: #e74c3c;
+            background-color: rgba(231, 76, 60, 0.1);
+        }
+
+        /* News Section */
+        .news-section {
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .news-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .news-card {
+            background: #2f3640;
+            border-radius: 8px;
+            padding: 1.5rem;
+            text-decoration: none;
+            color: #fff;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .news-card h3 {
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            color: #00a8ff;
+        }
+
+        .news-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            color: #95a5a6;
+            margin-top: 1rem;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 2rem 0;
+            margin-top: 3rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: #95a5a6;
+            font-size: 0.9rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .market-grid,
+            .news-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .market-section h2 {
+                font-size: 1.5rem;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .market-card,
+        .news-card {
+            animation: fadeIn 0.5s ease-out forwards;
+            opacity: 0;
+        }
+
+        .market-card:nth-child(1) { animation-delay: 0.1s; }
+        .market-card:nth-child(2) { animation-delay: 0.2s; }
+        .market-card:nth-child(3) { animation-delay: 0.3s; }
+        .news-card:nth-child(1) { animation-delay: 0.1s; }
+        .news-card:nth-child(2) { animation-delay: 0.2s; }
+        .news-card:nth-child(3) { animation-delay: 0.3s; }
+
+        /* Loading and Error States */
+        .loading,
+        .error {
+            text-align: center;
+            padding: 2rem;
+            font-size: 1.2rem;
+            color: #00a8ff;
+        }
+
+        .error {
+            color: #e74c3c;
+        }
+
+        /* Formatting helpers */
+        .text-muted {
+            color: #95a5a6;
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <header class="header">
+            <h1>Invest Smart</h1>
+        </header>
+
+        <main class="main-content">
+            <section class="market-section">
+                <h2>Stock Market</h2>
+                <div class="market-grid" id="stocks-container">
+                    <!-- Stock cards will be inserted here by JavaScript -->
+                    <div class="loading">Loading stock data...</div>
+                </div>
+            </section>
+
+            <section class="market-section">
+                <h2>Cryptocurrency</h2>
+                <div class="market-grid" id="crypto-container">
+                    <!-- Crypto cards will be inserted here by JavaScript -->
+                    <div class="loading">Loading cryptocurrency data...</div>
+                </div>
+            </section>
+
+            <section class="news-section">
+                <h2>Latest Financial News</h2>
+                <div class="news-grid" id="news-container">
+                    <!-- News cards will be inserted here by JavaScript -->
+                </div>
+            </section>
+        </main>
+
+        <footer class="footer">
+            <p>&copy; <span id="current-year"></span> Invest Smart. All data is for demonstration purposes only.</p>
+        </footer>
+    </div>
+
+    <script>
+        // Stock market data with more companies and sectors
+        const sampleStocks = [
+            // Technology
+            { symbol: "AAPL", name: "Apple Inc.", price: 175.34, change: 1.23, changePercent: 0.71, sector: "Technology", marketCap: 2750000000000 },
+            { symbol: "MSFT", name: "Microsoft", price: 330.12, change: -2.34, changePercent: -0.70, sector: "Technology", marketCap: 2450000000000 },
+            { symbol: "GOOGL", name: "Alphabet Inc.", price: 138.56, change: 0.78, changePercent: 0.57, sector: "Technology", marketCap: 1730000000000 },
+            { symbol: "NVDA", name: "NVIDIA", price: 488.90, change: 8.76, changePercent: 1.82, sector: "Technology", marketCap: 1210000000000 },
+            { symbol: "ADBE", name: "Adobe", price: 625.32, change: -4.21, changePercent: -0.67, sector: "Technology", marketCap: 280000000000 },
+
+            // Consumer Discretionary
+            { symbol: "AMZN", name: "Amazon", price: 145.67, change: 1.23, changePercent: 0.85, sector: "Consumer", marketCap: 1500000000000 },
+            { symbol: "TSLA", name: "Tesla", price: 245.89, change: -5.67, changePercent: -2.25, sector: "Automotive", marketCap: 780000000000 },
+            { symbol: "NKE", name: "Nike", price: 109.45, change: 1.23, changePercent: 1.14, sector: "Apparel", marketCap: 168000000000 },
+
+            // Financial
+            { symbol: "JPM", name: "JPMorgan Chase", price: 170.23, change: 0.89, changePercent: 0.53, sector: "Financial", marketCap: 500000000000 },
+            { symbol: "V", name: "Visa", price: 260.78, change: -1.23, changePercent: -0.47, sector: "Financial", marketCap: 500000000000 },
+
+            // Healthcare
+            { symbol: "JNJ", name: "Johnson & Johnson", price: 158.92, change: 0.45, changePercent: 0.28, sector: "Healthcare", marketCap: 410000000000 },
+            { symbol: "PFE", name: "Pfizer", price: 28.76, change: -0.23, changePercent: -0.79, sector: "Pharmaceuticals", marketCap: 162000000000 },
+
+            // International
+            { symbol: "BABA", name: "Alibaba", price: 74.56, change: 1.23, changePercent: 1.68, sector: "E-commerce", marketCap: 193000000000, region: "China" },
+            { symbol: "TSM", name: "TSMC", price: 102.34, change: 0.78, changePercent: 0.77, sector: "Semiconductors", marketCap: 530000000000, region: "Taiwan" },
+            { symbol: "ASML", name: "ASML Holding", price: 678.90, change: -3.45, changePercent: -0.51, sector: "Semiconductors", marketCap: 269000000000, region: "Netherlands" }
+        ];
+
+        // Cryptocurrency data with more details
+        const sampleCrypto = [
+            // Major Cryptocurrencies
+            { 
+                symbol: "BTC", 
+                name: "Bitcoin", 
+                price: 42000.50, 
+                change: 1200.45, 
+                changePercent: 2.94, 
+                marketCap: 820000000000,
+                volume24h: 28000000000,
+                allTimeHigh: 69000,
+                category: "Store of Value"
+            },
+            { 
+                symbol: "ETH", 
+                name: "Ethereum", 
+                price: 2200.30, 
+                change: -45.20, 
+                changePercent: -2.01, 
+                marketCap: 265000000000,
+                volume24h: 15000000000,
+                allTimeHigh: 4865,
+                category: "Smart Contracts"
+            },
+            { 
+                symbol: "BNB", 
+                name: "Binance Coin", 
+                price: 310.45, 
+                change: 5.67, 
+                changePercent: 1.86, 
+                marketCap: 48000000000,
+                volume24h: 1500000000,
+                allTimeHigh: 686,
+                category: "Exchange"
+            },
+            { 
+                symbol: "SOL", 
+                name: "Solana", 
+                price: 105.67, 
+                change: 5.23, 
+                changePercent: 5.21, 
+                marketCap: 45000000000,
+                volume24h: 3200000000,
+                allTimeHigh: 260,
+                category: "Smart Contracts"
+            },
+            { 
+                symbol: "XRP", 
+                name: "XRP", 
+                price: 0.62, 
+                change: -0.01, 
+                changePercent: -1.59, 
+                marketCap: 33500000000,
+                volume24h: 2000000000,
+                allTimeHigh: 3.40,
+                category: "Payments"
+            },
+            // Additional Cryptocurrencies
+            { 
+                symbol: "ADA", 
+                name: "Cardano", 
+                price: 0.62, 
+                change: 0.02, 
+                changePercent: 3.33, 
+                marketCap: 22000000000,
+                volume24h: 500000000,
+                allTimeHigh: 3.10,
+                category: "Smart Contracts"
+            },
+            { 
+                symbol: "AVAX", 
+                name: "Avalanche", 
+                price: 42.18, 
+                change: 1.23, 
+                changePercent: 3.01, 
+                marketCap: 15900000000,
+                volume24h: 1200000000,
+                allTimeHigh: 144.96,
+                category: "Smart Contracts"
+            },
+            { 
+                symbol: "DOT", 
+                name: "Polkadot", 
+                price: 8.76, 
+                change: -0.12, 
+                changePercent: -1.35, 
+                marketCap: 11000000000,
+                volume24h: 400000000,
+                allTimeHigh: 55.00,
+                category: "Interoperability"
+            },
+            { 
+                symbol: "MATIC", 
+                name: "Polygon", 
+                price: 0.89, 
+                change: 0.03, 
+                changePercent: 3.49, 
+                marketCap: 8300000000,
+                volume24h: 600000000,
+                allTimeHigh: 2.92,
+                category: "Scaling"
+            },
+            { 
+                symbol: "LINK", 
+                name: "Chainlink", 
+                price: 15.67, 
+                change: 0.45, 
+                changePercent: 2.96, 
+                marketCap: 9200000000,
+                volume24h: 700000000,
+                allTimeHigh: 52.70,
+                category: "Oracle"
+            }
+        ];
+
+        // Sample news data
+        const sampleNews = [
+            {
+                title: "Stocks Rally as Fed Signals Slower Rate Hikes",
+                summary: "Global markets surged after the Federal Reserve indicated a potential slowdown in interest rate increases.",
+                source: "Financial Times",
+                date: "2023-11-15T10:30:00Z"
+            },
+            {
+                title: "Bitcoin Surpasses $45,000 for First Time in 20 Months",
+                summary: "Cryptocurrency markets show strong recovery as institutional interest grows and regulatory clarity improves.",
+                source: "CoinDesk",
+                date: "2023-11-14T15:45:00Z"
+            },
+            {
+                title: "Tech Giants Report Mixed Earnings Amid Economic Uncertainty",
+                summary: "Major technology companies show resilience but warn of potential slowdown in the coming quarters.",
+                source: "Bloomberg",
+                date: "2023-11-13T18:20:00Z"
+            }
+        ];
+
+        // Helper function to format numbers with commas
+        function formatNumber(num) {
+            return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        }
+
+        // Helper function to format percentage changes
+        function formatPercentChange(percent) {
+            const isPositive = percent >= 0;
+            return {
+                value: Math.abs(percent).toFixed(2),
+                isPositive: isPositive
+            };
+        }
+
+        // Helper function to format market cap
+        function formatMarketCap(marketCap) {
+            if (marketCap >= 1e12) return `$${(marketCap / 1e12).toFixed(2)}T`;
+            if (marketCap >= 1e9) return `$${(marketCap / 1e9).toFixed(2)}B`;
+            if (marketCap >= 1e6) return `$${(marketCap / 1e6).toFixed(2)}M`;
+            return `$${formatNumber(marketCap)}`;
+        }
+
+        // Create stock card HTML
+        function createStockCard(stock, index) {
+            // Generate price history for the chart
+            const priceHistory = [];
+            let lastPrice = stock.price;
+            for (let i = 0; i < 20; i++) {
+                priceHistory.push(lastPrice);
+                lastPrice = lastPrice * (1 + (Math.random() * 0.02 - 0.01));
+            }
+            stock.priceHistory = priceHistory;
+
+            const change = formatPercentChange(stock.changePercent);
+            const marketCap = formatMarketCap(stock.marketCap);
+            
+            const card = document.createElement('div');
+            card.className = 'market-card';
+            card.id = `stock-${index}`;
+            
+            card.innerHTML = `
+                <div class="market-card-header">
+                    <div class="stock-title">
+                        <h3>${stock.symbol}</h3>
+                        <span class="sector-tag" style="background-color: #3498db;">${stock.sector}</span>
+                    </div>
+                    <div class="stock-name">${stock.name}</div>
+                </div>
+                <div class="market-card-body">
+                    <div class="price-row">
+                        <div class="price">$${formatNumber(stock.price.toFixed(2))}</div>
+                        <div class="change ${change.isPositive ? 'positive' : 'negative'}">
+                            ${change.isPositive ? '+' : ''}${stock.change.toFixed(2)} 
+                            <span>(${change.isPositive ? '+' : ''}${change.value}%)</span>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="chart-stock-${index}"></canvas>
+                    </div>
+                    <div class="stock-details">
+                        <div class="stock-meta">
+                            <span>Market Cap</span>
+                            <span>${marketCap}</span>
+                        </div>
+                        ${stock.region ? `
+                        <div class="stock-meta">
+                            <span>Region</span>
+                            <span>${stock.region}</span>
+                        </div>` : ''}
+                    </div>
+                </div>
+            `;
+            
+            return card;
+        }
+
+        // Create crypto card HTML
+        function createCryptoCard(crypto, index) {
+            // Generate price history for the chart
+            const priceHistory = [];
+            let lastPrice = crypto.price;
+            for (let i = 0; i < 20; i++) {
+                priceHistory.push(lastPrice);
+                lastPrice = lastPrice * (1 + (Math.random() * 0.04 - 0.02)); // More volatile
+            }
+            crypto.priceHistory = priceHistory;
+
+            const change = formatPercentChange(crypto.changePercent);
+            const marketCap = formatMarketCap(crypto.marketCap);
+            const volume24h = formatMarketCap(crypto.volume24h);
+            
+            const card = document.createElement('div');
+            card.className = 'market-card';
+            card.id = `crypto-${index}`;
+            
+            card.innerHTML = `
+                <div class="market-card-header">
+                    <div class="stock-title">
+                        <h3>${crypto.symbol}</h3>
+                        <span class="sector-tag" style="background-color: #9b59b6;">${crypto.category}</span>
+                    </div>
+                    <div class="stock-name">${crypto.name}</div>
+                </div>
+                <div class="market-card-body">
+                    <div class="price-row">
+                        <div class="price">$${formatNumber(crypto.price.toFixed(2))}</div>
+                        <div class="change ${change.isPositive ? 'positive' : 'negative'}">
+                            ${change.isPositive ? '+' : ''}${crypto.change.toFixed(2)} 
+                            <span>(${change.isPositive ? '+' : ''}${change.value}%)</span>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="chart-crypto-${index}"></canvas>
+                    </div>
+                    <div class="stock-details">
+                        <div class="stock-meta">
+                            <span>Market Cap</span>
+                            <span>${marketCap}</span>
+                        </div>
+                        <div class="stock-meta">
+                            <span>24h Vol</span>
+                            <span>${volume24h}</span>
+                        </div>
+                        <div class="stock-meta">
+                            <span>All Time High</span>
+                            <span>$${formatNumber(crypto.allTimeHigh)}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            return card;
+        }
+
+        // Create news card HTML
+        function createNewsCard(article) {
+            const formattedDate = new Date(article.date).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+            });
+
+            // Map of common news sources to their homepages
+            const sourceUrls = {
+                'Financial Times': 'https://www.ft.com',
+                'CoinDesk': 'https://www.coindesk.com',
+                'Bloomberg': 'https://www.bloomberg.com'
+            };
+            
+            // Use the source's homepage URL or fallback to a general news search
+            const sourceUrl = sourceUrls[article.source] || 'https://news.google.com';
+
+            return `
+                <a href="${sourceUrl}" target="_blank" rel="noopener noreferrer" class="news-card-link">
+                    <div class="news-card">
+                        <h3>${article.title}</h3>
+                        <p class="text-muted">${article.summary}</p>
+                        <div class="news-meta">
+                            <span class="news-source">${article.source}</span>
+                            <span class="news-date">${formattedDate}</span>
+                        </div>
+                    </div>
+                </a>
+            `;
+        }
+
+        // Initialize stock chart
+        function initStockChart(stock, index) {
+            const ctx = document.getElementById(`chart-stock-${index}`).getContext('2d');
+            const gradient = ctx.createLinearGradient(0, 0, 0, 80);
+            const isPositive = stock.changePercent >= 0;
+            
+            gradient.addColorStop(0, isPositive ? 'rgba(46, 204, 113, 0.2)' : 'rgba(231, 76, 60, 0.2)');
+            gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
+            
+            stock.chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: Array(20).fill(''),
+                    datasets: [{
+                        data: stock.priceHistory,
+                        borderColor: isPositive ? '#2ecc71' : '#e74c3c',
+                        borderWidth: 2,
+                        pointRadius: 0,
+                        fill: true,
+                        backgroundColor: gradient,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { display: false },
+                        y: { display: false }
+                    },
+                    interaction: { intersect: false },
+                    animation: { duration: 0 }
+                }
+            });
+        }
+
+        // Initialize crypto chart
+        function initCryptoChart(crypto, index) {
+            const ctx = document.getElementById(`chart-crypto-${index}`).getContext('2d');
+            const gradient = ctx.createLinearGradient(0, 0, 0, 80);
+            const isPositive = crypto.changePercent >= 0;
+            
+            gradient.addColorStop(0, isPositive ? 'rgba(46, 204, 113, 0.2)' : 'rgba(231, 76, 60, 0.2)');
+            gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
+            
+            crypto.chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: Array(20).fill(''),
+                    datasets: [{
+                        data: crypto.priceHistory,
+                        borderColor: isPositive ? '#2ecc71' : '#e74c3c',
+                        borderWidth: 2,
+                        pointRadius: 0,
+                        fill: true,
+                        backgroundColor: gradient,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { display: false },
+                        y: { display: false }
+                    },
+                    interaction: { intersect: false },
+                    animation: { duration: 0 }
+                }
+            });
+        }
+
+        // Initialize the application
+        function initApp() {
+            // Set current year in footer
+            document.getElementById('current-year').textContent = new Date().getFullYear();
+
+            // Render stocks
+            const stocksContainer = document.getElementById('stocks-container');
+            if (stocksContainer) {
+                stocksContainer.innerHTML = '';
+                sampleStocks.forEach((stock, index) => {
+                    const card = createStockCard(stock, index);
+                    stocksContainer.appendChild(card);
+                    
+                    // Initialize chart after the card is in the DOM
+                    setTimeout(() => {
+                        initStockChart(stock, index);
+                    }, 0);
+                });
+            }
+
+            // Render crypto
+            const cryptoContainer = document.getElementById('crypto-container');
+            if (cryptoContainer) {
+                cryptoContainer.innerHTML = '';
+                sampleCrypto.forEach((crypto, index) => {
+                    const card = createCryptoCard(crypto, index);
+                    cryptoContainer.appendChild(card);
+                    
+                    // Initialize chart after the card is in the DOM
+                    setTimeout(() => {
+                        initCryptoChart(crypto, index);
+                    }, 0);
+                });
+            }
+
+            // Render news
+            const newsContainer = document.getElementById('news-container');
+            if (newsContainer) {
+                newsContainer.innerHTML = sampleNews.map(createNewsCard).join('');
+            }
+
+            // Initial market data update
+            updateMarketData();
+
+            // Set up periodic updates
+            setInterval(updateMarketData, 30000);
+        }
+
+        // Update market data
+        function updateMarketData() {
+            // Update stocks
+            sampleStocks.forEach((stock, index) => {
+                const change = (Math.random() - 0.5) * 2; // Random value between -1 and 1
+                const oldPrice = stock.price;
+                stock.price = Math.max(1, stock.price + change);
+                stock.change = stock.price - oldPrice;
+                stock.changePercent = (stock.change / oldPrice) * 100;
+                
+                // Update price history for the chart
+                if (stock.priceHistory) {
+                    stock.priceHistory.shift(); // Remove oldest price
+                    stock.priceHistory.push(stock.price); // Add new price
+                }
+                
+                // Update the chart if it exists
+                if (stock.chart) {
+                    const isPositive = stock.change >= 0;
+                    stock.chart.data.datasets[0].data = stock.priceHistory;
+                    stock.chart.data.datasets[0].borderColor = isPositive ? '#2ecc71' : '#e74c3c';
+                    stock.chart.update('none');
+                }
+                
+                // Update the price and change display
+                const card = document.querySelector(`#stocks-container .market-card:nth-child(${index + 1})`);
+                if (card) {
+                    const priceElement = card.querySelector('.price');
+                    const changeElement = card.querySelector('.change');
+                    
+                    if (priceElement) priceElement.textContent = `$${formatNumber(stock.price.toFixed(2))}`;
+                    if (changeElement) {
+                        const change = formatPercentChange(stock.changePercent);
+                        changeElement.innerHTML = `
+                            ${change.isPositive ? '+' : ''}${stock.change.toFixed(2)} 
+                            <span>(${change.isPositive ? '+' : ''}${change.value}%)</span>
+                        `;
+                        changeElement.className = `change ${change.isPositive ? 'positive' : 'negative'}`;
+                    }
+                }
+            });
+
+            // Update crypto with more volatility
+            sampleCrypto.forEach((crypto, index) => {
+                const change = (Math.random() - 0.5) * 10; // More volatile changes
+                const oldPrice = crypto.price;
+                crypto.price = Math.max(0.01, crypto.price + change);
+                crypto.change = crypto.price - oldPrice;
+                crypto.changePercent = (crypto.change / oldPrice) * 100;
+                
+                // Update price history for the chart
+                if (crypto.priceHistory) {
+                    crypto.priceHistory.shift(); // Remove oldest price
+                    crypto.priceHistory.push(crypto.price); // Add new price
+                }
+                
+                // Update the chart if it exists
+                if (crypto.chart) {
+                    const isPositive = crypto.change >= 0;
+                    crypto.chart.data.datasets[0].data = crypto.priceHistory;
+                    crypto.chart.data.datasets[0].borderColor = isPositive ? '#2ecc71' : '#e74c3c';
+                    crypto.chart.update('none');
+                }
+                
+                // Update the price and change display
+                const card = document.querySelector(`#crypto-container .market-card:nth-child(${index + 1})`);
+                if (card) {
+                    const priceElement = card.querySelector('.price');
+                    const changeElement = card.querySelector('.change');
+                    
+                    if (priceElement) priceElement.textContent = `$${formatNumber(crypto.price.toFixed(2))}`;
+                    if (changeElement) {
+                        const change = formatPercentChange(crypto.changePercent);
+                        changeElement.innerHTML = `
+                            ${change.isPositive ? '+' : ''}${crypto.change.toFixed(2)} 
+                            <span>(${change.isPositive ? '+' : ''}${change.value}%)</span>
+                        `;
+                        changeElement.className = `change ${change.isPositive ? 'positive' : 'negative'}`;
+                    }
+                }
+            });
+        }
+
+        // Initialize the app when the DOM is fully loaded
+        document.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html>
