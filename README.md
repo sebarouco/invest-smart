@@ -2,6 +2,8 @@
 
 A modern investment tracking and management application.
 
+https://www.youtube.com/watch?v=7N8gQxCH0rg
+
 ## Features
 
 - Track your investment portfolio
